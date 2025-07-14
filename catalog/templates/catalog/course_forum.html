@@ -1,0 +1,961 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --success-gradient: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+        --info-gradient: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+        --warning-gradient: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+        --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        --card-bg: rgba(255, 255, 255, 0.95);
+        --glass-bg: rgba(255, 255, 255, 0.1);
+        --glass-border: rgba(255, 255, 255, 0.2);
+        --text-primary: #2c3e50;
+        --text-secondary: #6c757d;
+        --text-muted: #95a5a6;
+        --border-color: #e9ecef;
+        --shadow-light: 0 8px 32px rgba(0, 0, 0, 0.1);
+        --shadow-medium: 0 12px 40px rgba(0, 0, 0, 0.15);
+        --shadow-heavy: 0 20px 60px rgba(0, 0, 0, 0.2);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: var(--bg-gradient);
+        min-height: 100vh;
+        font-family: 'Inter', sans-serif;
+        line-height: 1.6;
+        color: var(--text-primary);
+        position: relative;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 20% 20%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(240, 147, 251, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+        animation: backgroundMove 20s ease-in-out infinite;
+        z-index: -1;
+    }
+
+    @keyframes backgroundMove {
+        0%, 100% { transform: translateX(0) translateY(0); }
+        25% { transform: translateX(20px) translateY(-10px); }
+        50% { transform: translateX(-10px) translateY(20px); }
+        75% { transform: translateX(15px) translateY(5px); }
+    }
+
+    .discussion-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+        position: relative;
+    }
+
+    .discussion-header {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-light);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        position: relative;
+        overflow: hidden;
+        animation: slideInDown 0.8s ease-out;
+    }
+
+    .discussion-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--primary-gradient);
+        border-radius: 20px 20px 0 0;
+    }
+
+    .discussion-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        background: var(--primary-gradient);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: titleGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes titleGlow {
+        0%, 100% { filter: brightness(1); }
+        50% { filter: brightness(1.2); }
+    }
+
+    .course-name {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+
+    .discussion-stats {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--glass-bg);
+        border-radius: 25px;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        transition: all 0.3s ease;
+    }
+
+    .stat-item:hover {
+        background: rgba(102, 126, 234, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .new-post-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-light);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        position: relative;
+        overflow: hidden;
+        animation: slideInUp 0.8s ease-out 0.2s forwards;
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .new-post-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--accent-gradient);
+        border-radius: 20px 20px 0 0;
+    }
+
+    .form-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-control {
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.8);
+        margin-bottom: 1rem;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background: white;
+        transform: translateY(-2px);
+    }
+
+    .form-control::placeholder {
+        color: var(--text-muted);
+        opacity: 0.8;
+    }
+
+    .btn-primary {
+        background: var(--primary-gradient);
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        font-size: 1rem;
+        color: white;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+
+    .btn-primary.loading {
+        opacity: 0.6;
+        pointer-events: none;
+        position: relative;
+    }
+
+    .btn-primary.loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        margin: -10px 0 0 -10px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s linear infinite;
+    }
+
+    .posts-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .post-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: var(--shadow-light);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    .post-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-medium);
+    }
+
+    .post-card:nth-child(odd)::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--primary-gradient);
+        border-radius: 20px 20px 0 0;
+    }
+
+    .post-card:nth-child(even)::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--secondary-gradient);
+        border-radius: 20px 20px 0 0;
+    }
+
+    .post-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .post-author {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .author-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--accent-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: white;
+        font-size: 1.1rem;
+        animation: avatarPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes avatarPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .author-info h6 {
+        margin: 0;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .post-time {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .post-content {
+        font-size: 1.1rem;
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+    }
+
+    .replies-section {
+        border-top: 2px solid var(--border-color);
+        padding-top: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .replies-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+
+    .reply-item {
+        background: var(--glass-bg);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        margin-left: 2rem;
+        position: relative;
+        transition: all 0.3s ease;
+        animation: slideInRight 0.5s ease-out;
+    }
+
+    .reply-item:hover {
+        background: rgba(102, 126, 234, 0.1);
+        transform: translateX(5px);
+    }
+
+    .reply-item::before {
+        content: '';
+        position: absolute;
+        left: -2rem;
+        top: 50%;
+        width: 1rem;
+        height: 2px;
+        background: var(--accent-gradient);
+        transform: translateY(-50%);
+    }
+
+    .reply-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .reply-author {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .reply-content {
+        color: var(--text-secondary);
+        line-height: 1.6;
+    }
+
+    .reply-form {
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+    }
+
+    .reply-form:hover {
+        background: rgba(255, 255, 255, 0.8);
+    }
+
+    .reply-textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .btn-outline-secondary {
+        border: 2px solid var(--border-color);
+        color: var(--text-secondary);
+        border-radius: 8px;
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-secondary:hover {
+        background: var(--accent-gradient);
+        border-color: transparent;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-outline-secondary.loading {
+        opacity: 0.6;
+        pointer-events: none;
+        position: relative;
+        color: transparent;
+    }
+
+    .btn-outline-secondary.loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 16px;
+        height: 16px;
+        margin: -8px 0 0 -8px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s linear infinite;
+    }
+
+    .no-posts-message {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 3rem;
+        text-align: center;
+        box-shadow: var(--shadow-light);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        animation: bounceIn 0.8s ease-out;
+    }
+
+    .no-posts-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .back-button {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+        box-shadow: var(--shadow-medium);
+        transition: all 0.3s ease;
+        z-index: 1000;
+        animation: slideInUp 0.8s ease-out 0.5s forwards;
+        opacity: 0;
+        transform: translateY(20px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+    }
+
+    .back-button:hover {
+        transform: translateY(-5px) scale(1.1);
+        box-shadow: var(--shadow-heavy);
+    }
+
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes bounceIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.3);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(0);
+        animation: rippleAnimation 0.6s linear;
+        pointer-events: none;
+        width: 20px;
+        height: 20px;
+        margin-left: -10px;
+        margin-top: -10px;
+    }
+
+    @keyframes rippleAnimation {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+
+    .character-counter {
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+        transition: color 0.3s ease;
+    }
+
+    textarea:focus,
+    input:focus {
+        outline: none;
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    }
+
+    @media (max-width: 768px) {
+        .discussion-container {
+            padding: 1rem;
+        }
+
+        .discussion-header,
+        .new-post-card,
+        .post-card {
+            padding: 1.5rem;
+        }
+
+        .discussion-title {
+            font-size: 2rem;
+        }
+
+        .discussion-stats {
+            gap: 1rem;
+        }
+
+        .stat-item {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        .post-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .reply-item {
+            margin-left: 1rem;
+        }
+
+        .reply-item::before {
+            left: -1rem;
+            width: 0.5rem;
+        }
+
+        .back-button {
+            bottom: 1rem;
+            right: 1rem;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .discussion-header,
+        .new-post-card,
+        .post-card {
+            padding: 1rem;
+        }
+
+        .discussion-title {
+            font-size: 1.75rem;
+        }
+
+        .form-control {
+            padding: 0.75rem 1rem;
+        }
+
+        .btn-primary,
+        .btn-outline-secondary {
+            padding: 0.75rem 1.5rem;
+            width: 100%;
+        }
+
+        .reply-item {
+            margin-left: 0.5rem;
+        }
+
+        .reply-form {
+            padding: 1rem;
+        }
+    }
+</style>
+
+<div class="discussion-container">
+    <div class="discussion-header animate-on-scroll">
+        <h1 class="discussion-title">💬 Discussion Forum</h1>
+        <p class="course-name">Course: <strong>{{ course.title }}</strong></p>
+        <div class="discussion-stats">
+            <div class="stat-item animate-on-scroll">
+                <span>📝</span>
+                <span>{{ posts.count }} Post{{ posts.count|pluralize }}</span>
+            </div>
+            <div class="stat-item animate-on-scroll">
+                <span>💬</span>
+                <span>{{ total_replies|default:0 }} Repl{{ total_replies|default:0|pluralize:"y,ies" }}</span>
+            </div>
+            <div class="stat-item animate-on-scroll">
+                <span>👥</span>
+                <span>{{ active_users|default:0 }} Active User{{ active_users|default:0|pluralize }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="new-post-card animate-on-scroll">
+        <h3 class="form-title">
+            <span>✍️</span>
+            Start a New Discussion
+        </h3>
+        <form method="post" id="newPostForm" action="{% url 'create_post' course.pk %}">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    {% if field.name == 'content' %}
+                        <label for="{{ field.id_for_label }}" class="form-label">Your Message</label>
+                        <textarea 
+                            name="{{ field.name }}" 
+                            id="{{ field.id_for_label }}"
+                            class="form-control" 
+                            rows="4" 
+                            placeholder="Share your thoughts, ask questions, or start a meaningful discussion..."
+                            required>{{ field.value|default:'' }}</textarea>
+                    {% else %}
+                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in field.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary" id="postBtn">
+                <span>Post Message</span>
+            </button>
+        </form>
+    </div>
+
+    <div class="posts-container">
+        {% for post in posts %}
+            <div class="post-card animate-on-scroll" style="animation-delay: {{ forloop.counter0|multiply:0.1 }}s;">
+                <div class="post-header">
+                    <div class="post-author">
+                        <div class="author-avatar">
+                            {{ post.user.username|slice:":1"|upper }}
+                        </div>
+                        <div class="author-info">
+                            <h6>{{ post.user.username }}</h6>
+                            <small class="text-muted">
+                                {% if post.user.first_name %}
+                                    {{ post.user.first_name }} {{ post.user.last_name }}
+                                {% else %}
+                                    Community Member
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                    <div class="post-time">
+                        <span>🕒</span>
+                        <span>{{ post.created_at|timesince }} ago</span>
+                    </div>
+                </div>
+
+                <div class="post-content">
+                    {{ post.content|linebreaks }}
+                </div>
+
+                <div class="replies-section">
+                    <div class="replies-header">
+                        <span>💬</span>
+                        <span>Replies ({{ post.replies.count }})</span>
+                    </div>
+
+                    {% for reply in post.replies.all %}
+                        <div class="reply-item animate-on-scroll" style="animation-delay: {{ forloop.counter0|multiply:0.05 }}s;">
+                            <div class="reply-header">
+                                <span class="reply-author">{{ reply.user.username }}</span>
+                                <span class="text-muted">•</span>
+                                <span class="text-muted small">{{ reply.created_at|timesince }} ago</span>
+                            </div>
+                            <div class="reply-content">
+                                {{ reply.content|linebreaks }}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="reply-item animate-on-scroll" style="background: rgba(0, 0, 0, 0.02); border: 1px dashed var(--border-color);">
+                            <div class="reply-content text-muted text-center">
+                                <em>No replies yet. Be the first to respond! 🚀</em>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <div class="reply-form">
+                        <form method="post" action="{% url 'reply_post' post.id %}" class="reply-form-inner">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label">Write a Reply</label>
+                                <textarea 
+                                    name="content" 
+                                    class="form-control reply-textarea" 
+                                    rows="3" 
+                                    placeholder="Share your thoughts on this post..."
+                                    required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-outline-secondary reply-btn">
+                                <span>Reply</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="no-posts-message animate-on-scroll">
+                <div class="no-posts-icon">🎯</div>
+                <h3>No discussions yet!</h3>
+                <p class="text-muted">Be the first to start a conversation and engage with your fellow learners.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<a href="{% url 'course_detail' course.pk %}" class="back-button" title="Back to Course">←</a>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const postCards = document.querySelectorAll('.post-card');
+    postCards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+    });
+
+    const replyItems = document.querySelectorAll('.reply-item');
+    replyItems.forEach((item, index) => {
+        item.style.animationDelay = `${index * 0.05}s`;
+    });
+
+    const newPostForm = document.getElementById('newPostForm');
+    const postBtn = document.getElementById('postBtn');
+    
+    if (newPostForm && postBtn) {
+        newPostForm.addEventListener('submit', function(e) {
+            postBtn.classList.add('loading');
+            postBtn.disabled = true;
+            setTimeout(() => {
+                newPostForm.submit();
+            }, 1000);
+        });
+    }
+
+    const replyForms = document.querySelectorAll('.reply-form-inner');
+    replyForms.forEach(form => {
+        const btn = form.querySelector('.reply-btn');
+        if (btn) {
+            form.addEventListener('submit', function(e) {
+                btn.classList.add('loading');
+                btn.disabled = true;
+                setTimeout(() => {
+                    form.submit();
+                }, 1000);
+            });
+        }
+    });
+
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+        });
+    });
+
+    textareas.forEach(textarea => {
+        const maxLength = 1000;
+        const wrapper = textarea.parentElement;
+        const counter = document.createElement('small');
+        counter.className = 'text-muted character-counter';
+        counter.style.float = 'right';
+        wrapper.appendChild(counter);
+
+        function updateCounter() {
+            const remaining = maxLength - textarea.value.length;
+            counter.textContent = `${remaining} characters remaining`;
+            counter.style.color = remaining < 100 ? '#e74c3c' : '#6c757d';
+        }
+
+        textarea.addEventListener('input', updateCounter);
+        updateCounter();
+    });
+
+    const avatars = document.querySelectorAll('.author-avatar');
+    avatars.forEach(avatar => {
+        avatar.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.2) rotate(5deg)';
+        });
+        
+        avatar.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1) rotate(0deg)';
+        });
+    });
+
+    const header = document.querySelector('.discussion-header');
+    if (header) {
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const parallax = scrolled * 0.5;
+            header.style.transform = `translateY(${parallax}px)`;
+        });
+    }
+
+    const buttons = document.querySelectorAll('.btn');
+    buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            ripple.className = 'ripple';
+            ripple.style.left = `${e.clientX - this.offsetLeft}px`;
+            ripple.style.top = `${e.clientY - this.offsetTop}px`;
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+
+    const backButton = document.querySelector('.back-button');
+    if (backButton) {
+        backButton.addEventListener('click', function(e) {
+            if (window.pageYOffset > 300) {
+                e.preventDefault();
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+        });
+
+        window.addEventListener('scroll', function() {
+            backButton.style.display = window.pageYOffset > 300 ? 'flex' : 'none';
+        });
+    }
+
+    if (window.location.hash) {
+        const target = document.querySelector(window.location.hash);
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+});
+</script>
+{% endblock %}

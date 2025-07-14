@@ -1,0 +1,828 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        --bg-light: #f8f9fa;
+        --text-primary: #2c3e50;
+        --text-secondary: #6c757d;
+        --border-color: #e9ecef;
+        --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.08);
+        --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+        --shadow-heavy: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Header Section */
+    .page-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 4rem 0 2rem;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        animation: headerShimmer 8s ease-in-out infinite;
+    }
+
+    @keyframes headerShimmer {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    .page-title {
+        font-size: 3rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 1;
+        animation: slideInDown 0.8s ease-out;
+    }
+
+    .page-subtitle {
+        font-size: 1.2rem;
+        text-align: center;
+        opacity: 0.9;
+        font-weight: 300;
+        position: relative;
+        z-index: 1;
+        animation: slideInUp 0.8s ease-out 0.2s both;
+    }
+
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Statistics Section */
+    .stats-section {
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: var(--shadow-light);
+        transition: all 0.3s ease;
+        border: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .stat-card:hover::before {
+        left: 100%;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-medium);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+        counter-reset: number-counter;
+        animation: countUp 2s ease-out;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    /* Categories Grid */
+    .categories-grid {
+        animation: fadeIn 0.8s ease-out 0.4s both;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .category-card {
+        background: white;
+        border: none;
+        border-radius: 20px;
+        box-shadow: var(--shadow-light);
+        transition: all 0.4s ease;
+        overflow: hidden;
+        height: 100%;
+        position: relative;
+        transform: translateY(20px);
+        opacity: 0;
+        animation: slideInUp 0.6s ease-out forwards;
+    }
+
+    .category-card:nth-child(1) { animation-delay: 0.1s; }
+    .category-card:nth-child(2) { animation-delay: 0.2s; }
+    .category-card:nth-child(3) { animation-delay: 0.3s; }
+    .category-card:nth-child(4) { animation-delay: 0.4s; }
+    .category-card:nth-child(5) { animation-delay: 0.5s; }
+    .category-card:nth-child(6) { animation-delay: 0.6s; }
+
+    .category-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--shadow-heavy);
+    }
+
+    .category-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--primary-gradient);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .category-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .category-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--primary-gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        color: white;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .category-icon::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: all 0.3s ease;
+    }
+
+    .category-card:hover .category-icon::before {
+        width: 100px;
+        height: 100px;
+    }
+
+    .category-card:hover .category-icon {
+        transform: scale(1.1);
+    }
+
+    .category-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+
+    .category-description {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        text-align: center;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+    }
+
+    .category-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding: 0 1rem;
+    }
+
+    .course-count {
+        background: var(--bg-light);
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+
+    .category-badge {
+        background: var(--accent-gradient);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .category-btn {
+        background: var(--primary-gradient);
+        border: none;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        font-size: 0.9rem;
+        display: inline-block;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    .category-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .category-btn:hover::before {
+        left: 100%;
+    }
+
+    .category-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        background: var(--secondary-gradient);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        animation: fadeIn 0.8s ease-out;
+    }
+
+    .empty-icon {
+        width: 120px;
+        height: 120px;
+        background: var(--bg-light);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        font-size: 3rem;
+        color: var(--text-secondary);
+    }
+
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+    }
+
+    .empty-description {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.6;
+    }
+
+    /* Navigation */
+    .navigation-section {
+        margin-top: 4rem;
+        padding: 2rem 0;
+        text-align: center;
+    }
+
+    .nav-btn {
+        background: white;
+        border: 2px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .nav-btn:hover {
+        background: var(--primary-gradient);
+        color: white;
+        border-color: transparent;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-medium);
+    }
+
+    /* Search Section */
+    .search-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: var(--shadow-light);
+        margin-bottom: 3rem;
+        animation: slideInUp 0.8s ease-out 0.3s both;
+    }
+
+    .search-form {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .search-input {
+        flex: 1;
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .search-btn {
+        background: var(--primary-gradient);
+        border: none;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .search-btn:hover {
+        transform: translateY(-20px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Loading Animation */
+    .loading-skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+        border-radius: 12px;
+        height: 20px;
+        margin-bottom: 10px;
+    }
+
+    @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 2.5rem;
+        }
+
+        .page-subtitle {
+            font-size: 1rem;
+        }
+
+        .page-header {
+            padding: 3rem 0 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+        }
+
+        .category-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+
+        .search-form {
+            flex-direction: column;
+        }
+
+        .search-input {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .stats-section {
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            padding: 1rem;
+        }
+
+        .category-card {
+            margin-bottom: 1rem;
+        }
+    }
+
+    /* Hover Effects */
+    .category-card:hover .category-title {
+        color: #667eea;
+    }
+
+    .category-card:hover .category-description {
+        color: var(--text-primary);
+    }
+
+    /* Fade in animation for categories */
+    @keyframes countUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-title">Course Categories</h1>
+        <p class="page-subtitle">Explore our comprehensive collection of learning paths</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Statistics Section -->
+    <div class="stats-section">
+        <div class="row g-4">
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number" data-count="{{ categories.count }}">0</div>
+                    <div class="stat-label">Categories</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number" data-count="150">0</div>
+                    <div class="stat-label">Total Courses</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number" data-count="5000">0</div>
+                    <div class="stat-label">Students</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number" data-count="98">0</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Section -->
+    <div class="search-section">
+        <form class="search-form" id="searchForm">
+            <input type="text" class="search-input" placeholder="Search categories..." id="searchInput">
+            <button type="submit" class="search-btn">
+                🔍 Search
+            </button>
+        </form>
+    </div>
+
+    <!-- Categories Grid -->
+    {% if categories %}
+    <div class="categories-grid">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="categoriesGrid">
+            {% for category in categories %}
+            <div class="col category-item" data-category="{{ category.name|lower }}">
+                <div class="card category-card">
+                    <div class="card-body p-4">
+                        <div class="category-icon">
+                            {% if 'programming' in category.name|lower %}
+                                💻
+                            {% elif 'design' in category.name|lower %}
+                                🎨
+                            {% elif 'business' in category.name|lower %}
+                                💼
+                            {% elif 'marketing' in category.name|lower %}
+                                📈
+                            {% elif 'language' in category.name|lower %}
+                                🗣️
+                            {% elif 'music' in category.name|lower %}
+                                🎵
+                            {% elif 'photography' in category.name|lower %}
+                                📸
+                            {% elif 'writing' in category.name|lower %}
+                                ✍️
+                            {% elif 'health' in category.name|lower %}
+                                🏥
+                            {% elif 'finance' in category.name|lower %}
+                                💰
+                            {% else %}
+                                📚
+                            {% endif %}
+                        </div>
+                        
+                        <h5 class="category-title">{{ category.name }}</h5>
+                        <p class="category-description">
+                            Discover amazing courses in {{ category.name|lower }} and enhance your skills with expert-led content.
+                        </p>
+                        
+                        <div class="category-meta">
+                            <span class="course-count">
+                                {{ category.courses.count|default:"0" }} courses
+                            </span>
+                            <span class="category-badge">Popular</span>
+                        </div>
+                        
+                        <a href="{% url 'category_courses' category_id=category.id %}" class="btn category-btn">
+                            {{ category.name }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">
+            📚
+        </div>
+        <h3 class="empty-title">No Categories Found</h3>
+        <p class="empty-description">
+            It looks like there are no course categories available at the moment. 
+            Check back later or contact support if you think this is an error.
+        </p>
+        <a href="/" class="btn nav-btn">
+            🏠 Go to Homepage
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Navigation Section -->
+    <div class="navigation-section">
+        <a href="/" class="nav-btn">
+            ← Back to All Courses
+        </a>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Counter animation for statistics
+    const counters = document.querySelectorAll('.stat-number');
+    
+    const animateCounter = (counter) => {
+        const target = parseInt(counter.getAttribute('data-count'));
+        const duration = 2000;
+        const step = target / (duration / 16);
+        let current = 0;
+        
+        const updateCounter = () => {
+            if (current < target) {
+                current += step;
+                counter.textContent = Math.floor(current);
+                requestAnimationFrame(updateCounter);
+            } else {
+                counter.textContent = target;
+            }
+        };
+        
+        updateCounter();
+    };
+    
+    // Trigger counter animation when in viewport
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounter(entry.target);
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+    
+    counters.forEach(counter => {
+        observer.observe(counter);
+    });
+    
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const searchForm = document.getElementById('searchForm');
+    const categoryItems = document.querySelectorAll('.category-item');
+    
+    const filterCategories = (searchTerm) => {
+        const term = searchTerm.toLowerCase();
+        let visibleCount = 0;
+        
+        categoryItems.forEach(item => {
+            const categoryName = item.getAttribute('data-category');
+            const card = item.querySelector('.category-card');
+            
+            if (categoryName.includes(term)) {
+                item.style.display = 'block';
+                card.style.animation = 'fadeIn 0.3s ease-in-out';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Show/hide empty state
+        const emptyState = document.querySelector('.empty-state');
+        if (visibleCount === 0 && term !== '') {
+            if (!emptyState) {
+                const grid = document.getElementById('categoriesGrid');
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = 'empty-state';
+                emptyDiv.innerHTML = `
+                    <div class="empty-icon">🔍</div>
+                    <h3 class="empty-title">No Categories Found</h3>
+                    <p class="empty-description">
+                        No categories match your search term "${searchTerm}". 
+                        Try different keywords or browse all categories.
+                    </p>
+                `;
+                grid.parentNode.appendChild(emptyDiv);
+            }
+        } else if (emptyState && term === '') {
+            emptyState.remove();
+        }
+    };
+    
+    searchInput.addEventListener('input', (e) => {
+        filterCategories(e.target.value);
+    });
+    
+    searchForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        filterCategories(searchInput.value);
+    });
+    
+    // Add loading state to buttons
+    const categoryButtons = document.querySelectorAll('.category-btn');
+    categoryButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Loading...';
+            this.disabled = true;
+        });
+    });
+    
+    // Intersection Observer for scroll animations
+    const animateOnScroll = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    });
+    
+    // Observe all category cards
+    document.querySelectorAll('.category-card').forEach(card => {
+        animateOnScroll.observe(card);
+    });
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === '/' && !searchInput.matches(':focus')) {
+            e.preventDefault();
+            searchInput.focus();
+        }
+        
+        if (e.key === 'Escape') {
+            searchInput.blur();
+            searchInput.value = '';
+            filterCategories('');
+        }
+    });
+    
+    // Add ripple effect to cards
+    const cards = document.querySelectorAll('.category-card');
+    cards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.cssText = `
+                position: absolute;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                background: rgba(102, 126, 234, 0.1);
+                border-radius: 50%;
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                pointer-events: none;
+            `;
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+});
+
+// Add CSS for ripple animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes ripple {
+        to {
+            transform: scale(2);
+            opacity: 0;
+        }
+    }
+    
+    .category-card {
+        position: relative;
+        overflow: hidden;
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

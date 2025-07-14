@@ -1,0 +1,833 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --bg-light: #f8f9fa;
+        --card-bg: #ffffff;
+        --text-primary: #2c3e50;
+        --text-secondary: #6c757d;
+        --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.08);
+        --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+        --border-radius: 16px;
+        --transition: all 0.3s ease;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--text-primary);
+    }
+
+    /* Animated Background Elements */
+    .bg-animation {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .bg-animation::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: 
+            radial-gradient(circle at 20% 30%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
+        animation: backgroundRotate 30s linear infinite;
+    }
+
+    @keyframes backgroundRotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Main Container */
+    .main-container {
+        padding: 2rem 0;
+        min-height: 100vh;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Header Section */
+    .page-header {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-light);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+        animation: slideInDown 0.8s ease-out;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--primary-gradient);
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+    }
+
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-align: center;
+        animation: titleGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes titleGlow {
+        0%, 100% { filter: brightness(1); }
+        50% { filter: brightness(1.2); }
+    }
+
+    .category-name {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: var(--primary-gradient);
+        color: white;
+        border-radius: 25px;
+        font-weight: 600;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .page-subtitle {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        text-align: center;
+        margin-top: 1rem;
+        font-weight: 300;
+    }
+
+    /* Stats Section */
+    .stats-section {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-light);
+        animation: fadeInUp 0.8s ease-out 0.2s forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .stats-item {
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .stats-number {
+        font-size: 2rem;
+        font-weight: 700;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: block;
+        animation: countUp 1s ease-out 1s forwards;
+    }
+
+    .stats-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 0.5rem;
+    }
+
+    /* Course Grid */
+    .courses-grid {
+        animation: fadeIn 0.8s ease-out 0.4s forwards;
+        opacity: 0;
+    }
+
+    @keyframes fadeIn {
+        to { opacity: 1; }
+    }
+
+    .course-card {
+        background: var(--card-bg);
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-light);
+        transition: var(--transition);
+        overflow: hidden;
+        position: relative;
+        height: 100%;
+        animation: slideInUp 0.6s ease-out forwards;
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .course-card:nth-child(1) { animation-delay: 0.1s; }
+    .course-card:nth-child(2) { animation-delay: 0.2s; }
+    .course-card:nth-child(3) { animation-delay: 0.3s; }
+    .course-card:nth-child(4) { animation-delay: 0.4s; }
+    .course-card:nth-child(5) { animation-delay: 0.5s; }
+    .course-card:nth-child(6) { animation-delay: 0.6s; }
+
+    @keyframes slideInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .course-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--primary-gradient);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .course-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-hover);
+    }
+
+    .course-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .course-card-body {
+        padding: 2rem;
+        position: relative;
+    }
+
+    .course-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--primary-gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .course-icon::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .course-card:hover .course-icon::before {
+        left: 100%;
+    }
+
+    .course-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+        line-height: 1.4;
+    }
+
+    .course-description {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .course-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
+    }
+
+    .course-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .stars {
+        color: #ffc107;
+    }
+
+    .rating-text {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .course-price {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--text-primary);
+    }
+
+    .btn-view-course {
+        background: var(--primary-gradient);
+        border: none;
+        border-radius: 25px;
+        padding: 0.75rem 2rem;
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .btn-view-course::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .btn-view-course:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-view-course:hover::before {
+        left: 100%;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-light);
+        animation: fadeIn 0.8s ease-out 0.6s forwards;
+        opacity: 0;
+    }
+
+    .empty-icon {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        font-size: 3rem;
+        color: #667eea;
+        animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+    }
+
+    .empty-description {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Back Button */
+    .back-section {
+        text-align: center;
+        margin-top: 3rem;
+        animation: fadeIn 0.8s ease-out 0.8s forwards;
+        opacity: 0;
+    }
+
+    .btn-back {
+        background: var(--card-bg);
+        border: 2px solid #667eea;
+        border-radius: 25px;
+        padding: 0.75rem 2rem;
+        color: #667eea;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-back::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: var(--primary-gradient);
+        transition: left 0.3s ease;
+        z-index: -1;
+    }
+
+    .btn-back:hover {
+        color: white;
+        border-color: transparent;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+    }
+
+    .btn-back:hover::before {
+        left: 0;
+    }
+
+    /* Search and Filter Section */
+    .search-filter-section {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-light);
+        animation: slideInLeft 0.8s ease-out 0.3s forwards;
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+
+    @keyframes slideInLeft {
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .search-box {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 3rem;
+        border: 2px solid #e9ecef;
+        border-radius: 25px;
+        font-size: 1rem;
+        transition: var(--transition);
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+    }
+
+    .filter-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 20px;
+        background: transparent;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        transition: var(--transition);
+        cursor: pointer;
+    }
+
+    .filter-btn.active,
+    .filter-btn:hover {
+        border-color: #667eea;
+        color: #667eea;
+        background: rgba(102, 126, 234, 0.1);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 2rem;
+        }
+        
+        .page-header {
+            padding: 2rem 1.5rem;
+        }
+        
+        .course-card-body {
+            padding: 1.5rem;
+        }
+        
+        .search-filter-section {
+            padding: 1.5rem;
+        }
+        
+        .filter-buttons {
+            justify-content: flex-start;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .page-title {
+            font-size: 1.75rem;
+        }
+        
+        .page-header {
+            padding: 1.5rem 1rem;
+        }
+        
+        .course-card-body {
+            padding: 1rem;
+        }
+        
+        .search-filter-section {
+            padding: 1rem;
+        }
+        
+        .btn-view-course {
+            padding: 0.625rem 1.5rem;
+        }
+        
+        .stats-item {
+            padding: 0.5rem;
+        }
+        
+        .stats-number {
+            font-size: 1.5rem;
+        }
+    }
+
+    /* Loading Animation */
+    .loading-skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+        border-radius: 4px;
+    }
+
+    @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+</style>
+
+<div class="bg-animation"></div>
+
+<div class="main-container">
+    <div class="container">
+        <!-- Header Section -->
+        <div class="page-header">
+            <h1 class="page-title">
+                Explore <span class="category-name">{{ category.name }}</span> Courses
+            </h1>
+            <p class="page-subtitle">
+                Discover high-quality courses designed to boost your skills and advance your career
+            </p>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="stats-section">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="stats-item">
+                        <span class="stats-number">{{ courses.count }}</span>
+                        <div class="stats-label">Total Courses</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-item">
+                        <span class="stats-number">{{ category.name|length }}</span>
+                        <div class="stats-label">Category Level</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-item">
+                        <span class="stats-number">4.8</span>
+                        <div class="stats-label">Average Rating</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="search-filter-section">
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="Search courses..." id="searchInput">
+                <span class="search-icon">🔍</span>
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All Courses</button>
+                <button class="filter-btn" data-filter="beginner">Beginner</button>
+                <button class="filter-btn" data-filter="intermediate">Intermediate</button>
+                <button class="filter-btn" data-filter="advanced">Advanced</button>
+            </div>
+        </div>
+
+        <!-- Courses Grid -->
+        {% if courses %}
+        <div class="courses-grid">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="coursesContainer">
+                {% for course in courses %}
+                <div class="col course-item" data-level="beginner">
+                    <div class="card course-card">
+                        <div class="course-card-body">
+                            <div class="course-icon">
+                                📚
+                            </div>
+                            <h5 class="course-title">{{ course.title }}</h5>
+                            <p class="course-description">
+                                {{ course.description|default:"Comprehensive course covering essential concepts and practical applications." }}
+                            </p>
+                            
+                            <div class="course-meta">
+                                <div class="course-rating">
+                                    <span class="stars">⭐⭐⭐⭐⭐</span>
+                                    <span class="rating-text">(4.8)</span>
+                                </div>
+                                <div class="course-price">
+                                    ${{ course.price|default:"99" }}
+                                </div>
+                            </div>
+                            
+                            <a href="{% url 'course_detail' course.pk %}" class="btn btn-view-course">
+                                View Course Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon">
+                📚
+            </div>
+            <h3 class="empty-title">No Courses Available</h3>
+            <p class="empty-description">
+                We're working hard to add more courses in the <strong>{{ category.name }}</strong> category. 
+                Check back soon for new content!
+            </p>
+            <a href="{% url 'categories_list' %}" class="btn btn-view-course">
+                Browse Other Categories
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Back Button -->
+        <div class="back-section">
+            <a href="{% url 'categories_list' %}" class="btn-back">
+                ← Back to Categories
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const courseItems = document.querySelectorAll('.course-item');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            courseItems.forEach(item => {
+                const title = item.querySelector('.course-title').textContent.toLowerCase();
+                const description = item.querySelector('.course-description').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    item.style.display = 'block';
+                    item.style.animation = 'fadeIn 0.3s ease-out';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // Filter functionality
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            const filter = this.dataset.filter;
+            
+            courseItems.forEach(item => {
+                if (filter === 'all' || item.dataset.level === filter) {
+                    item.style.display = 'block';
+                    item.style.animation = 'slideInUp 0.3s ease-out';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+    
+    // Smooth scroll for back button
+    const backButton = document.querySelector('.btn-back');
+    if (backButton) {
+        backButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Add loading animation
+            this.style.opacity = '0.7';
+            this.innerHTML = 'Loading...';
+            
+            setTimeout(() => {
+                window.location.href = this.href;
+            }, 300);
+        });
+    }
+    
+    // Add hover effect to course cards
+    const courseCards = document.querySelectorAll('.course-card');
+    courseCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+    
+    // Intersection Observer for animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    // Observe course cards
+    courseCards.forEach(card => {
+        observer.observe(card);
+    });
+    
+    // Add loading states to view course buttons
+    const viewButtons = document.querySelectorAll('.btn-view-course');
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            if (!this.href || this.href === '#') {
+                e.preventDefault();
+                return;
+            }
+            
+            this.innerHTML = 'Loading...';
+            this.style.opacity = '0.8';
+            this.style.pointerEvents = 'none';
+        });
+    });
+    
+    // Animate stats numbers
+    const statsNumbers = document.querySelectorAll('.stats-number');
+    statsNumbers.forEach(stat => {
+        const finalValue = parseInt(stat.textContent);
+        let currentValue = 0;
+        const increment = finalValue / 30;
+        
+        const countUp = setInterval(() => {
+            currentValue += increment;
+            if (currentValue >= finalValue) {
+                stat.textContent = finalValue;
+                clearInterval(countUp);
+            } else {
+                stat.textContent = Math.floor(currentValue);
+            }
+        }, 50);
+    });
+});
+</script>
+{% endblock %}

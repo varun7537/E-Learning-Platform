@@ -1,0 +1,806 @@
+{% extends 'catalog/base.html' %}
+{% block content %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --success-gradient: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+        --warning-gradient: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+        --info-gradient: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+        --dark-gradient: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+        --card-bg: rgba(255, 255, 255, 0.95);
+        --text-primary: #2c3e50;
+        --text-secondary: #6c757d;
+        --border-color: #e9ecef;
+        --shadow-light: 0 10px 30px rgba(0, 0, 0, 0.08);
+        --shadow-hover: 0 20px 50px rgba(0, 0, 0, 0.12);
+        --bg-color: #f8f9fa;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        background: var(--bg-color);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--text-primary);
+        line-height: 1.6;
+    }
+
+    /* Header Section */
+    .dashboard-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="rgba(255,255,255,0.1)"><polygon points="0,100 1000,0 1000,100"/></svg>');
+        background-size: cover;
+        background-position: bottom;
+    }
+
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: slideInUp 0.8s ease-out 0.2s forwards;
+    }
+
+    .dashboard-subtitle {
+        font-size: 1.2rem;
+        font-weight: 300;
+        opacity: 0.9;
+        margin-bottom: 0;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: slideInUp 0.8s ease-out 0.4s forwards;
+    }
+
+    @keyframes slideInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Stats Cards */
+    .stats-row {
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: var(--shadow-light);
+        border: none;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: slideInUp 0.6s ease-out forwards;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--primary-gradient);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-hover);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        opacity: 0.8;
+    }
+
+    /* Course Cards */
+    .course-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--shadow-light);
+        transition: all 0.4s ease;
+        border: none;
+        margin-bottom: 2rem;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: slideInUp 0.8s ease-out forwards;
+        position: relative;
+    }
+
+    .course-card:nth-child(odd) { animation-delay: 0.2s; }
+    .course-card:nth-child(even) { animation-delay: 0.4s; }
+
+    .course-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .course-card:hover::before {
+        left: 100%;
+    }
+
+    .course-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--shadow-hover);
+    }
+
+    .course-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .course-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 60px;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateX(-50%);
+        border-radius: 2px;
+    }
+
+    .course-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .course-meta {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-bottom: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .course-body {
+        padding: 2rem;
+    }
+
+    .enrollment-stats {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        border-left: 4px solid #667eea;
+    }
+
+    .enrollment-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .enrollment-label {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .enrollment-icon {
+        font-size: 2.5rem;
+        opacity: 0.6;
+        color: #667eea;
+    }
+
+    /* Student List */
+    .student-list {
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 0;
+        margin: 0;
+        border-radius: 12px;
+        background: #f8f9fa;
+    }
+
+    .student-item {
+        padding: 1rem 1.5rem;
+        border: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .student-item:hover {
+        background: white;
+        transform: translateX(5px);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .student-item:last-child {
+        border-bottom: none;
+    }
+
+    .student-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--primary-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .student-info {
+        flex: 1;
+    }
+
+    .student-name {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .student-email {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin: 0;
+    }
+
+    .student-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: var(--success-gradient);
+        color: white;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: var(--shadow-light);
+        margin: 2rem 0;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        opacity: 0.5;
+        margin-bottom: 1rem;
+    }
+
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-description {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .empty-action {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 25px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .empty-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    /* No Students Message */
+    .no-students {
+        text-align: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+        border-radius: 12px;
+        color: #2d3436;
+        font-weight: 500;
+    }
+
+    .no-students-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        border: none;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        font-size: 0.8rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .action-btn-primary {
+        background: var(--primary-gradient);
+        color: white;
+    }
+
+    .action-btn-secondary {
+        background: var(--secondary-gradient);
+        color: white;
+    }
+
+    .action-btn-success {
+        background: var(--success-gradient);
+        color: white;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Loading Animation */
+    .loading-skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+        border-radius: 8px;
+        height: 20px;
+        margin-bottom: 10px;
+    }
+
+    @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .dashboard-header {
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title {
+            font-size: 2rem;
+        }
+
+        .dashboard-subtitle {
+            font-size: 1rem;
+        }
+
+        .course-body {
+            padding: 1.5rem;
+        }
+
+        .enrollment-stats {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .action-btn {
+            justify-content: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+        }
+
+        .student-item {
+            padding: 0.75rem 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .dashboard-title {
+            font-size: 1.75rem;
+        }
+
+        .course-header {
+            padding: 1.25rem;
+        }
+
+        .course-body {
+            padding: 1.25rem;
+        }
+
+        .stat-card {
+            padding: 1.25rem;
+        }
+
+        .student-avatar {
+            width: 35px;
+            height: 35px;
+        }
+    }
+
+    /* Scroll Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in-up {
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    /* Custom Scrollbar */
+    .student-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .student-list::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    .student-list::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+
+    .student-list::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+</style>
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="dashboard-title">📚 Instructor Dashboard</h1>
+                <p class="dashboard-subtitle">Manage your courses and track student progress</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Statistics Overview -->
+    {% if course_data %}
+        <div class="row stats-row">
+            <div class="col-6 col-md-3 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon">📖</div>
+                    <span class="stat-number">{{ course_data|length }}</span>
+                    <div class="stat-label">Total Courses</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <span class="stat-number">
+                        {% widthratio course_data|length 1 course_data|length %}
+                        {% for data in course_data %}
+                            {% if forloop.first %}{{ data.num_enrollments }}{% endif %}
+                            {% if not forloop.first %}+{{ data.num_enrollments }}{% endif %}
+                        {% endfor %}
+                    </span>
+                    <div class="stat-label">Total Students</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <span class="stat-number">4.8</span>
+                    <div class="stat-label">Avg Rating</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <span class="stat-number">85%</span>
+                    <div class="stat-label">Completion Rate</div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Course Cards -->
+    <div class="row">
+        {% if course_data %}
+            {% for data in course_data %}
+                <div class="col-lg-6 col-xl-4 mb-4">
+                    <div class="course-card">
+                        <div class="course-header">
+                            <h5 class="course-title">{{ data.course.title }}</h5>
+                            <div class="course-meta">
+                                <span>📅 Created: {{ data.course.created_at|date:"M d, Y" }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="course-body">
+                            <!-- Enrollment Statistics -->
+                            <div class="enrollment-stats">
+                                <div>
+                                    <div class="enrollment-number">{{ data.num_enrollments }}</div>
+                                    <div class="enrollment-label">Enrolled Students</div>
+                                </div>
+                                <div class="enrollment-icon">👥</div>
+                            </div>
+
+                            <!-- Student List -->
+                            {% if data.enrollments %}
+                                <h6 class="mb-3" style="color: var(--text-primary); font-weight: 600;">
+                                    <span style="margin-right: 0.5rem;">👨‍🎓</span>Students List
+                                </h6>
+                                <ul class="student-list">
+                                    {% for enroll in data.enrollments %}
+                                        <li class="student-item">
+                                            <div class="student-avatar">
+                                                {{ enroll.user.username|first|upper }}
+                                            </div>
+                                            <div class="student-info">
+                                                <div class="student-name">{{ enroll.user.username }}</div>
+                                                <div class="student-email">{{ enroll.user.email|default:"No email" }}</div>
+                                            </div>
+                                            <div class="student-status">Active</div>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <div class="no-students">
+                                    <div class="no-students-icon">🎯</div>
+                                    <div>No students enrolled yet</div>
+                                </div>
+                            {% endif %}
+
+                            <!-- Action Buttons -->
+                            <div class="action-buttons">
+                                <a href="#" class="action-btn action-btn-primary">
+                                    <span>📝</span> Edit Course
+                                </a>
+                                <a href="#" class="action-btn action-btn-secondary">
+                                    <span>📊</span> Analytics
+                                </a>
+                                <a href="#" class="action-btn action-btn-success">
+                                    <span>💬</span> Message Students
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <!-- Empty State -->
+            <div class="col-12">
+                <div class="empty-state">
+                    <div class="empty-icon">🎓</div>
+                    <h3 class="empty-title">No Courses Yet</h3>
+                    <p class="empty-description">
+                        You haven't been assigned any courses yet. Contact your administrator or create your first course to get started.
+                    </p>
+                    <a href="#" class="empty-action">
+                        <span style="margin-right: 0.5rem;">➕</span>
+                        Create Your First Course
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add loading skeleton animation
+    const cards = document.querySelectorAll('.course-card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+    });
+
+    // Add counter animation for stats
+    const statNumbers = document.querySelectorAll('.stat-number');
+    statNumbers.forEach(stat => {
+        const finalValue = parseInt(stat.textContent);
+        let currentValue = 0;
+        const increment = Math.ceil(finalValue / 20);
+        
+        const timer = setInterval(() => {
+            currentValue += increment;
+            if (currentValue >= finalValue) {
+                currentValue = finalValue;
+                clearInterval(timer);
+            }
+            stat.textContent = currentValue;
+        }, 50);
+    });
+
+    // Add intersection observer for scroll animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('fade-in-up');
+            }
+        });
+    }, observerOptions);
+
+    // Observe all course cards
+    cards.forEach(card => {
+        observer.observe(card);
+    });
+
+    // Add smooth scrolling for student lists
+    const studentLists = document.querySelectorAll('.student-list');
+    studentLists.forEach(list => {
+        list.addEventListener('scroll', function() {
+            const scrollTop = this.scrollTop;
+            const items = this.querySelectorAll('.student-item');
+            
+            items.forEach((item, index) => {
+                const itemTop = item.offsetTop;
+                const distance = Math.abs(scrollTop - itemTop);
+                const opacity = Math.max(0.3, 1 - distance / 200);
+                item.style.opacity = opacity;
+            });
+        });
+    });
+
+    // Add ripple effect to buttons
+    const buttons = document.querySelectorAll('.action-btn');
+    buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.style.position = 'absolute';
+            ripple.style.borderRadius = '50%';
+            ripple.style.background = 'rgba(255, 255, 255, 0.5)';
+            ripple.style.pointerEvents = 'none';
+            ripple.style.animation = 'ripple 0.6s ease-out';
+            
+            this.style.position = 'relative';
+            this.style.overflow = 'hidden';
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+
+    // Add hover effect for course cards
+    const courseCards = document.querySelectorAll('.course-card');
+    courseCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+});
+
+// Add CSS for ripple animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes ripple {
+        0% {
+            transform: scale(0);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

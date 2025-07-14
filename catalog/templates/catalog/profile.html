@@ -1,0 +1,863 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --success-gradient: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+        --warning-gradient: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+        --bg-gradient: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        --card-bg: rgba(255, 255, 255, 0.95);
+        --text-primary: #2c3e50;
+        --text-secondary: #6c757d;
+        --border-color: #e9ecef;
+        --shadow-light: 0 10px 40px rgba(0, 0, 0, 0.08);
+        --shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.12);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: var(--bg-gradient);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--text-primary);
+    }
+
+    /* Animated Background */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 20% 20%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
+        animation: backgroundShift 20s ease-in-out infinite;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    @keyframes backgroundShift {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    /* Container */
+    .profile-container {
+        padding: 2rem 0;
+        min-height: 100vh;
+    }
+
+    /* Profile Header */
+    .profile-header {
+        background: var(--primary-gradient);
+        color: white;
+        border-radius: 24px;
+        padding: 3rem 2rem;
+        margin-bottom: 3rem;
+        text-align: center;
+        box-shadow: var(--shadow-light);
+        position: relative;
+        overflow: hidden;
+        animation: slideInDown 0.8s ease-out;
+    }
+
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: rotate 15s linear infinite;
+        pointer-events: none;
+    }
+
+    @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .profile-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Stats Cards */
+    .stats-container {
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: var(--shadow-light);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: slideInUp 0.8s ease-out forwards;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.2s; }
+    .stat-card:nth-child(2) { animation-delay: 0.4s; }
+    .stat-card:nth-child(3) { animation-delay: 0.6s; }
+    .stat-card:nth-child(4) { animation-delay: 0.8s; }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-hover);
+    }
+
+    .stat-card:hover::before {
+        left: 100%;
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        animation: iconBounce 2s ease-in-out infinite;
+    }
+
+    @keyframes iconBounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-gradient);
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    @keyframes slideInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Section Headers */
+    .section-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding: 1rem 0;
+        border-bottom: 2px solid var(--border-color);
+        opacity: 0;
+        transform: translateX(-30px);
+        animation: slideInLeft 0.8s ease-out forwards;
+    }
+
+    .section-header.courses { animation-delay: 1s; }
+    .section-header.reviews { animation-delay: 1.2s; }
+    .section-header.completed { animation-delay: 1.4s; }
+
+    .section-icon {
+        font-size: 2rem;
+        margin-right: 1rem;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    @keyframes slideInLeft {
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Course Cards */
+    .course-card {
+        background: var(--card-bg);
+        border: none;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: var(--shadow-light);
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+        position: relative;
+        text-decoration: none;
+        color: inherit;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: slideInUp 0.6s ease-out forwards;
+    }
+
+    .course-card:nth-child(1) { animation-delay: 1.2s; }
+    .course-card:nth-child(2) { animation-delay: 1.4s; }
+    .course-card:nth-child(3) { animation-delay: 1.6s; }
+    .course-card:nth-child(4) { animation-delay: 1.8s; }
+
+    .course-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--primary-gradient);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .course-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-hover);
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .course-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .course-card-body {
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .course-info {
+        flex: 1;
+    }
+
+    .course-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .course-meta {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+    }
+
+    .course-progress {
+        width: 100%;
+        height: 6px;
+        background: #e9ecef;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+
+    .course-progress-bar {
+        height: 100%;
+        background: var(--success-gradient);
+        border-radius: 3px;
+        transition: width 0.5s ease;
+        position: relative;
+    }
+
+    .course-progress-bar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        animation: progressShimmer 2s infinite;
+    }
+
+    @keyframes progressShimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    .course-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 120px;
+        justify-content: center;
+        animation: badgePulse 2s ease-in-out infinite;
+    }
+
+    .course-badge.completed {
+        background: var(--success-gradient);
+        color: white;
+    }
+
+    .course-badge.in-progress {
+        background: var(--warning-gradient);
+        color: white;
+    }
+
+    @keyframes badgePulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    /* Review Cards */
+    .review-card {
+        background: var(--card-bg);
+        border: none;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-light);
+        border-left: 4px solid var(--primary-gradient);
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateX(30px);
+        animation: slideInRight 0.6s ease-out forwards;
+    }
+
+    .review-card:nth-child(1) { animation-delay: 1.4s; }
+    .review-card:nth-child(2) { animation-delay: 1.6s; }
+    .review-card:nth-child(3) { animation-delay: 1.8s; }
+
+    .review-card:hover {
+        transform: translateX(5px);
+        box-shadow: var(--shadow-hover);
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .review-course {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .review-rating {
+        display: flex;
+        gap: 0.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .star {
+        color: #ffc107;
+        font-size: 1.2rem;
+        animation: starTwinkle 2s ease-in-out infinite;
+    }
+
+    .star:nth-child(1) { animation-delay: 0s; }
+    .star:nth-child(2) { animation-delay: 0.2s; }
+    .star:nth-child(3) { animation-delay: 0.4s; }
+    .star:nth-child(4) { animation-delay: 0.6s; }
+    .star:nth-child(5) { animation-delay: 0.8s; }
+
+    @keyframes starTwinkle {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    .review-comment {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        font-style: italic;
+        position: relative;
+        padding-left: 1rem;
+    }
+
+    .review-comment::before {
+        content: '"';
+        position: absolute;
+        left: 0;
+        top: 0;
+        font-size: 2rem;
+        color: var(--primary-gradient);
+        line-height: 1;
+    }
+
+    @keyframes slideInRight {
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: var(--card-bg);
+        border-radius: 16px;
+        box-shadow: var(--shadow-light);
+        border: 2px dashed var(--border-color);
+        opacity: 0;
+        transform: scale(0.9);
+        animation: scaleIn 0.6s ease-out forwards;
+    }
+
+    .empty-state.courses { animation-delay: 1.2s; }
+    .empty-state.reviews { animation-delay: 1.4s; }
+    .empty-state.completed { animation-delay: 1.6s; }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        color: var(--text-secondary);
+        opacity: 0.5;
+    }
+
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+    }
+
+    .empty-message {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+    }
+
+    .empty-action {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: var(--primary-gradient);
+        color: white;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .empty-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    @keyframes scaleIn {
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .profile-header {
+            padding: 2rem 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-title {
+            font-size: 2rem;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            font-size: 2.5rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+        }
+
+        .course-card-body {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .course-badge {
+            align-self: flex-end;
+        }
+
+        .empty-state {
+            padding: 2rem 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .profile-container {
+            padding: 1rem 0;
+        }
+
+        .profile-header {
+            padding: 1.5rem 1rem;
+        }
+
+        .profile-title {
+            font-size: 1.75rem;
+        }
+
+        .course-card-body {
+            padding: 1rem;
+        }
+
+        .review-card {
+            padding: 1rem;
+        }
+    }
+</style>
+
+<div class="profile-container">
+    <div class="container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <h1 class="profile-title">{{ user.username }}'s Profile</h1>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="stats-container">
+            <div class="row g-4">
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-number">{{ enrollments|length }}</div>
+                        <div class="stat-label">Courses</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-number">{{ completed_count|default:1 }}</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">📝</div>
+                        <div class="stat-number">{{ reviews|length }}</div>
+                        <div class="stat-label">Reviews</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-number">{{ progress_percentage|default:0 }}%</div>
+                        <div class="stat-label">Progress</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enrolled Courses Section -->
+        <div class="mb-5">
+            <div class="section-header courses">
+                <span class="section-icon">📘</span>
+                <h2 class="section-title">My Enrolled Courses</h2>
+            </div>
+            
+            {% if enrollments %}
+                <div class="row">
+                    {% for enrollment in enrollments %}
+                    <div class="col-12">
+                        <a href="{% url 'course_detail' enrollment.course.pk %}" class="course-card d-block">
+                            <div class="course-card-body">
+                                <div class="course-info">
+                                    <h3 class="course-title">{{ enrollment.course.title }}</h3>
+                                    <div class="course-meta">
+                                        <small>
+                                            {% if enrollment.is_completed %}
+                                                ✅ Completed
+                                            {% else %}
+                                                ❌ In Progress
+                                            {% endif %}
+                                            • Enrolled: {{ enrollment.enrollment_date|date:"M d, Y" }}
+                                            {% if enrollment.course.instructor %}
+                                                • Instructor: {{ enrollment.course.instructor.username }}
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    {% if not enrollment.is_completed %}
+                                        <div class="course-progress">
+                                            <div class="course-progress-bar" style="width: {{ enrollment.progress_percentage|default:0 }}%"></div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="course-badge {% if enrollment.is_completed %}completed{% else %}in-progress{% endif %}">
+                                    {% if enrollment.is_completed %}
+                                        <span>🏆</span>
+                                        <span>Completed</span>
+                                    {% else %}
+                                        <span>📖</span>
+                                        <span>In Progress</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state courses">
+                    <div class="empty-icon">📚</div>
+                    <h3 class="empty-title">You have no enrollments.</h3>
+                    <p class="empty-message">Start your learning journey by enrolling in your first course!</p>
+                    <a href="{% url 'course_list' %}" class="empty-action">Browse Courses</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Completed Courses Section -->
+        <div class="mb-5">
+            <div class="section-header completed">
+                <span class="section-icon">🏆</span>
+                <h2 class="section-title">Completed Courses ({{ completed_enrollments.count }})</h2>
+            </div>
+            
+            {% if completed_enrollments %}
+                <div class="row">
+                    {% for enrollment in completed_enrollments %}
+                    <div class="col-12">
+                        <a href="{% url 'course_detail' enrollment.course.pk %}" class="course-card d-block">
+                            <div class="course-card-body">
+                                <div class="course-info">
+                                    <h3 class="course-title">{{ enrollment.course.title }}</h3>
+                                    <div class="course-meta">
+                                        <small>
+                                            ✅ Completed
+                                            • Enrolled: {{ enrollment.enrollment_date|date:"M d, Y" }}
+                                            {% if enrollment.course.instructor %}
+                                                • Instructor: {{ enrollment.course.instructor.username }}
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="course-badge completed">
+                                    <span>🏆</span>
+                                    <span>Completed</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state completed">
+                    <div class="empty-icon">🏆</div>
+                    <h3 class="empty-title">No courses completed yet.</h3>
+                    <p class="empty-message">Complete your enrolled courses to see them here!</p>
+                    <a href="{% url 'course_list' %}" class="empty-action">Browse Courses</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="mb-5">
+            <div class="section-header reviews">
+                <span class="section-icon">📝</span>
+                <h2 class="section-title">My Reviews</h2>
+            </div>
+            
+            {% if reviews %}
+                <div class="row">
+                    {% for review in reviews %}
+                    <div class="col-12">
+                        <div class="review-card">
+                            <div class="review-header">
+                                <div>
+                                    <h4 class="review-course">{{ review.course.title }}</h4>
+                                    <div class="review-rating">
+                                        {% for i in "12345" %}
+                                            <span class="star">{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="review-comment">{{ review.comment }}</p>
+                            <small class="text-muted">Reviewed on {{ review.created_at|date:"M d, Y" }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state reviews">
+                    <div class="empty-icon">📝</div>
+                    <h3 class="empty-title">No Reviews Yet</h3>
+                    <p class="empty-message">Share your learning experience by writing reviews for completed courses!</p>
+                    <a href="{% url 'course_list' %}" class="empty-action">View Courses</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize animations
+    initializeAnimations();
+    
+    // Initialize progress bars
+    initializeProgressBars();
+    
+    // Initialize interactive elements
+    initializeInteractivity();
+});
+
+function initializeAnimations() {
+    // Add entrance animations to elements
+    const animatedElements = document.querySelectorAll('.stat-card, .course-card, .review-card');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            }
+        });
+    });
+    
+    animatedElements.forEach(el => {
+        observer.observe(el);
+    });
+}
+
+function initializeProgressBars() {
+    const progressBars = document.querySelectorAll('.course-progress-bar');
+    
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 500);
+    });
+}
+
+function initializeInteractivity() {
+    // Add click animations to cards
+    const cards = document.querySelectorAll('.course-card, .stat-card');
+    
+    cards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Add ripple effect
+            const ripple = document.createElement('span');
+            ripple.style.position = 'absolute';
+            ripple.style.borderRadius = '50%';
+            ripple.style.background = 'rgba(255, 255, 255, 0.3)';
+            ripple.style.pointerEvents = 'none';
+            ripple.style.width = '100px';
+            ripple.style.height = '100px';
+            ripple.style.left = e.offsetX - 50 + 'px';
+            ripple.style.top = e.offsetY - 50 + 'px';
+            ripple.style.animation = 'ripple 0.6s ease-out';
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+    
+    // Add hover effects to badges
+    const badges = document.querySelectorAll('.course-badge');
+    badges.forEach(badge => {
+        badge.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.1)';
+        });
+        
+        badge.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+}
+
+// Add ripple animation keyframes
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes ripple {
+        0% {
+            transform: scale(0);
+            opacity: 0.6;
+        }
+        100% {
+            transform: scale(2);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

@@ -1,0 +1,830 @@
+{% extends 'catalog/base.html' %}
+{% block content %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --danger-gradient: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+        --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --card-bg: rgba(255, 255, 255, 0.95);
+        --text-primary: #2c3e50;
+        --text-secondary: #6c757d;
+        --shadow-light: 0 20px 60px rgba(0, 0, 0, 0.1);
+        --shadow-hover: 0 30px 80px rgba(0, 0, 0, 0.15);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: var(--bg-gradient);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    /* Animated Background */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(120, 119, 198, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 40% 60%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+        animation: backgroundFloat 20s ease-in-out infinite;
+        z-index: -1;
+    }
+
+    @keyframes backgroundFloat {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+    }
+
+    /* Floating Particles */
+    .floating-particle {
+        position: fixed;
+        width: 6px;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .floating-particle:nth-child(1) {
+        top: 15%;
+        left: 15%;
+        animation: float 12s ease-in-out infinite;
+    }
+
+    .floating-particle:nth-child(2) {
+        top: 70%;
+        left: 80%;
+        animation: float 8s ease-in-out infinite reverse;
+    }
+
+    .floating-particle:nth-child(3) {
+        top: 40%;
+        left: 75%;
+        animation: float 15s ease-in-out infinite;
+    }
+
+    .floating-particle:nth-child(4) {
+        top: 80%;
+        left: 25%;
+        animation: float 10s ease-in-out infinite reverse;
+    }
+
+    @keyframes float {
+        0%, 100% { 
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+            opacity: 0.6;
+        }
+        25% { 
+            transform: translateY(-30px) translateX(15px) rotate(90deg);
+            opacity: 0.8;
+        }
+        50% { 
+            transform: translateY(-20px) translateX(-15px) rotate(180deg);
+            opacity: 1;
+        }
+        75% { 
+            transform: translateY(-40px) translateX(10px) rotate(270deg);
+            opacity: 0.7;
+        }
+    }
+
+    /* Main Container */
+    .result-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Result Card */
+    .result-card {
+        background: var(--card-bg);
+        border: none;
+        border-radius: 24px;
+        box-shadow: var(--shadow-light);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transform: translateY(50px);
+        opacity: 0;
+        animation: slideInUp 1s ease-out forwards;
+        transition: all 0.4s ease;
+        max-width: 700px;
+        width: 100%;
+        position: relative;
+    }
+
+    .result-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .result-card:hover {
+        box-shadow: var(--shadow-hover);
+        transform: translateY(-10px);
+    }
+
+    .result-card:hover::before {
+        left: 100%;
+    }
+
+    @keyframes slideInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Header Section */
+    .result-header {
+        background: var(--primary-gradient);
+        color: white;
+        text-align: center;
+        padding: 3rem 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .result-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 80px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateX(-50%);
+        border-radius: 2px;
+    }
+
+    .quiz-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        animation: fadeInDown 0.8s ease-out 0.2s forwards;
+        opacity: 0;
+    }
+
+    .completion-text {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        font-weight: 300;
+        animation: fadeInDown 0.8s ease-out 0.4s forwards;
+        opacity: 0;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Score Section */
+    .score-section {
+        padding: 3rem 2rem;
+        text-align: center;
+    }
+
+    .score-icon {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 2rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        position: relative;
+        animation: bounceIn 1s ease-out 0.6s forwards;
+        opacity: 0;
+        transform: scale(0);
+    }
+
+    .score-icon.excellent {
+        background: var(--success-gradient);
+        box-shadow: 0 10px 30px rgba(17, 153, 142, 0.3);
+    }
+
+    .score-icon.good {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        box-shadow: 0 10px 30px rgba(79, 172, 254, 0.3);
+    }
+
+    .score-icon.average {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        box-shadow: 0 10px 30px rgba(250, 112, 154, 0.3);
+    }
+
+    .score-icon.poor {
+        background: var(--danger-gradient);
+        box-shadow: 0 10px 30px rgba(252, 70, 107, 0.3);
+    }
+
+    @keyframes bounceIn {
+        0% {
+            opacity: 0;
+            transform: scale(0);
+        }
+        60% {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .score-text {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        animation: countUp 2s ease-out 0.8s forwards;
+        opacity: 0;
+    }
+
+    .score-percentage {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        animation: fadeIn 0.6s ease-out 1s forwards;
+        opacity: 0;
+    }
+
+    @keyframes countUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        to { opacity: 1; }
+    }
+
+    /* Progress Bar */
+    .progress-container {
+        margin: 2rem 0;
+        animation: slideInLeft 0.8s ease-out 1.2s forwards;
+        opacity: 0;
+    }
+
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+
+    .progress-bar {
+        height: 12px;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 6px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .progress-fill {
+        height: 100%;
+        border-radius: 6px;
+        position: relative;
+        transition: width 2s ease-out;
+        animation: progressFill 2s ease-out 1.4s forwards;
+        width: 0%;
+    }
+
+    .progress-fill.excellent {
+        background: var(--success-gradient);
+    }
+
+    .progress-fill.good {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .progress-fill.average {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+
+    .progress-fill.poor {
+        background: var(--danger-gradient);
+    }
+
+    .progress-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        animation: shine 2s ease-out infinite;
+    }
+
+    @keyframes progressFill {
+        to {
+            width: {{ score|floatformat:0|add:0 }}{{ total|floatformat:0|add:0 }}%;
+        }
+    }
+
+    @keyframes shine {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Performance Badge */
+    .performance-badge {
+        display: inline-block;
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 1rem 0;
+        animation: badgeSlide 0.6s ease-out 1.6s forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    .performance-badge.excellent {
+        background: var(--success-gradient);
+        color: white;
+    }
+
+    .performance-badge.good {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+    }
+
+    .performance-badge.average {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        color: white;
+    }
+
+    .performance-badge.poor {
+        background: var(--danger-gradient);
+        color: white;
+    }
+
+    @keyframes badgeSlide {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Stats Section */
+    .stats-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+        animation: statsSlide 0.8s ease-out 1.8s forwards;
+        opacity: 0;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 12px;
+        transition: transform 0.3s ease;
+    }
+
+    .stat-item:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        display: block;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-top: 0.5rem;
+    }
+
+    @keyframes statsSlide {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        animation: buttonsSlide 0.6s ease-out 2s forwards;
+        opacity: 0;
+    }
+
+    .btn {
+        padding: 0.875rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-primary {
+        background: var(--primary-gradient);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--text-primary);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .btn:hover::before {
+        left: 100%;
+    }
+
+    @keyframes buttonsSlide {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .result-container {
+            padding: 15px;
+        }
+
+        .score-section {
+            padding: 2rem 1.5rem;
+        }
+
+        .result-header {
+            padding: 2rem 1.5rem;
+        }
+
+        .quiz-title {
+            font-size: 1.5rem;
+        }
+
+        .score-text {
+            font-size: 2rem;
+        }
+
+        .score-icon {
+            width: 100px;
+            height: 100px;
+            font-size: 2.5rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .score-section {
+            padding: 1.5rem 1rem;
+        }
+
+        .result-header {
+            padding: 1.5rem 1rem;
+        }
+
+        .quiz-title {
+            font-size: 1.25rem;
+        }
+
+        .score-text {
+            font-size: 1.75rem;
+        }
+
+        .score-icon {
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+        }
+
+        .stats-section {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .stat-item {
+            padding: 1rem;
+        }
+    }
+
+    /* Confetti Animation */
+    @keyframes confetti {
+        0% { transform: translateY(-100vh) rotate(0deg); }
+        100% { transform: translateY(100vh) rotate(360deg); }
+    }
+
+    .confetti {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        background: #f0f;
+        animation: confetti 3s linear infinite;
+        z-index: 1000;
+    }
+</style>
+
+<!-- Floating Particles -->
+<div class="floating-particle"></div>
+<div class="floating-particle"></div>
+<div class="floating-particle"></div>
+<div class="floating-particle"></div>
+
+<div class="result-container">
+    <div class="result-card">
+        <div class="result-header">
+            <h1 class="quiz-title">{{ quiz.title }}</h1>
+            <p class="completion-text">Quiz Completed Successfully!</p>
+        </div>
+        
+        <div class="score-section">
+            <!-- Score Icon with Dynamic Styling -->
+            {% with percentage=score|floatformat:0|add:0 %}
+                {% if percentage >= 90 %}
+                    <div class="score-icon excellent">🎉</div>
+                    <div class="performance-badge excellent">Excellent</div>
+                {% elif percentage >= 75 %}
+                    <div class="score-icon good">⭐</div>
+                    <div class="performance-badge good">Good Job</div>
+                {% elif percentage >= 50 %}
+                    <div class="score-icon average">👍</div>
+                    <div class="performance-badge average">Not Bad</div>
+                {% else %}
+                    <div class="score-icon poor">📚</div>
+                    <div class="performance-badge poor">Keep Trying</div>
+                {% endif %}
+            {% endwith %}
+            
+            <div class="score-text">{{ score }} / {{ total }}</div>
+            <div class="score-percentage">
+                {% widthratio score total 100 %}% Correct
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span>Progress</span>
+                    <span>{% widthratio score total 100 %}%</span>
+                </div>
+                <div class="progress-bar">
+                    {% with percentage=score|floatformat:0|add:0 %}
+                        {% if percentage >= 90 %}
+                            <div class="progress-fill excellent" style="width: {% widthratio score total 100 %}%;"></div>
+                        {% elif percentage >= 75 %}
+                            <div class="progress-fill good" style="width: {% widthratio score total 100 %}%;"></div>
+                        {% elif percentage >= 50 %}
+                            <div class="progress-fill average" style="width: {% widthratio score total 100 %}%;"></div>
+                        {% else %}
+                            <div class="progress-fill poor" style="width: {% widthratio score total 100 %}%;"></div>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="stats-section">
+                <div class="stat-item">
+                    <span class="stat-number">{{ score }}</span>
+                    <span class="stat-label">Correct</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ total|add:0|add:score|floatformat:0|add:"-"|add:score|floatformat:0 }}</span>
+                    <span class="stat-label">Incorrect</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ total }}</span>
+                    <span class="stat-label">Total</span>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="/" class="btn btn-primary">
+                    🏠 Back to Home
+                </a>
+                <a href="#" class="btn btn-secondary" onclick="window.print()">
+                    📄 Print Result
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate score counting
+    const scoreElement = document.querySelector('.score-text');
+    const targetScore = {{ score }};
+    const total = {{ total }};
+    const percentage = Math.round((targetScore / total) * 100);
+    
+    let currentScore = 0;
+    const increment = targetScore / 50;
+    
+    const countUp = setInterval(() => {
+        currentScore += increment;
+        if (currentScore >= targetScore) {
+            currentScore = targetScore;
+            clearInterval(countUp);
+        }
+        scoreElement.textContent = `${Math.floor(currentScore)} / ${total}`;
+    }, 40);
+    
+    // Add confetti for excellent scores
+    if (percentage >= 90) {
+        createConfetti();
+    }
+    
+    // Progress bar animation
+    setTimeout(() => {
+        const progressFill = document.querySelector('.progress-fill');
+        progressFill.style.width = `${percentage}%`;
+    }, 1400);
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'h' || e.key === 'H') {
+            window.location.href = '/';
+        }
+        if (e.key === 'p' || e.key === 'P') {
+            window.print();
+        }
+    });
+    
+    // Add hover effects to stats
+    const statItems = document.querySelectorAll('.stat-item');
+    statItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px) scale(1.05)';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+});
+
+function createConfetti() {
+    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd', '#98d8c8'];
+    
+    for (let i = 0; i < 50; i++) {
+        setTimeout(() => {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 3 + 's';
+            confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => {
+                confetti.remove();
+            }, 5000);
+        }, i * 100);
+    }
+}
+
+// Add social sharing functionality
+function shareResult() {
+    const shareText = `I scored ${{{ score }}} out of ${{{ total }}} in ${{{ quiz.title }}}! 🎯`;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: 'Quiz Result',
+            text: shareText,
+            url: window.location.href
+        });
+    } else {
+        // Fallback for browsers that don't support Web Share API
+        const textarea = document.createElement('textarea');
+        textarea.value = shareText;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        
+        // Show copy notification
+        const notification = document.createElement('div');
+        notification.textContent = 'Result copied to clipboard!';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+}
+</script>
+{% endblock %}

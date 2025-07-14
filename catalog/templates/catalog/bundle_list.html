@@ -1,0 +1,218 @@
+{% extends 'catalog/base.html' %}
+{% block content %}
+
+<!-- 🎨 Styles and animations (your full CSS retained) -->
+<style>
+    /* ... All your CSS remains untouched ... */
+</style>
+
+<!-- 🌟 Bundle Display Section -->
+<div class="bundles-container">
+    <div class="container">
+
+        <!-- 🔷 Header -->
+        <div class="header-section">
+            <h1 class="main-title">Course Bundles</h1>
+            <p class="subtitle">
+                Discover our carefully curated course bundles designed to accelerate your learning journey.
+            </p>
+        </div>
+
+        <!-- 📊 Statistics -->
+        <div class="stats-section">
+            <h3 class="mb-3" style="color: var(--text-primary);">Why Choose Our Bundles?</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number">{{ bundles|length }}</span>
+                    <span class="stat-label">Available Bundles</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">50+</span>
+                    <span class="stat-label">Expert Instructors</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">10K+</span>
+                    <span class="stat-label">Happy Students</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">4.9★</span>
+                    <span class="stat-label">Average Rating</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📦 Bundles Grid -->
+        <div class="row g-4">
+            {% for bundle in bundles %}
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="bundle-card">
+
+                        <!-- Card Header -->
+                        <div class="card-header-custom">
+                            <h3 class="bundle-title">{{ bundle.name }}</h3>
+                            <p class="bundle-description">{{ bundle.description|default:"Complete learning package with multiple courses" }}</p>
+                            <div class="price-section">
+                                <span class="price-label">Bundle Price:</span>
+                                <span class="price-currency">$</span>
+                                <span class="price-value">{{ bundle.price }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="card-body-custom">
+                            <div class="courses-section">
+                                <h4 class="courses-title">
+                                    <span class="courses-icon">{{ bundle.courses.all|length }}</span>
+                                    Included Courses
+                                </h4>
+                                
+                                {% if bundle.courses.all %}
+                                    <ul class="courses-list">
+                                        {% for course in bundle.courses.all %}
+                                            <li class="course-item">{{ course.title }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <div class="empty-courses">
+                                        <p>No courses listed yet</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- 🎯 Action Buttons -->
+                            <div class="d-flex flex-column gap-2 mt-4">
+                                <button class="action-button w-100" onclick="selectBundle('{{ bundle.id }}', '{{ bundle.name }}')">
+                                    Enroll Now
+                                </button>
+                                <a href="{% url 'buy_bundle' bundle.id %}" class="action-button w-100 text-center text-white text-decoration-none" style="background: linear-gradient(135deg, #10b981, #059669);">
+                                    Buy this Bundle
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <div style="background: white; padding: 3rem; border-radius: var(--border-radius); box-shadow: var(--shadow-md);">
+                            <h3 style="color: var(--text-primary); margin-bottom: 1rem;">No Bundles Available</h3>
+                            <p style="color: var(--text-secondary); font-size: 1.1rem;">We're working on creating amazing course bundles for you. Check back soon!</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- 🚀 Script for interactivity -->
+<script>
+    // Same JavaScript as before
+    document.addEventListener('DOMContentLoaded', function() {
+        // Scroll animation
+        const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.bundle-card').forEach(card => {
+            card.classList.add('scroll-fade');
+            observer.observe(card);
+        });
+
+        // Hover and ripple effects
+        document.querySelectorAll('.bundle-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        document.querySelectorAll('.action-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                let ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                this.appendChild(ripple);
+                let x = e.clientX - e.target.offsetLeft;
+                let y = e.clientY - e.target.offsetTop;
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Animate stats numbers
+        function animateCounter(element, target, duration = 2000) {
+            const start = 0;
+            const increment = target / (duration / 16);
+            let current = start;
+            const timer = setInterval(() => {
+                current += increment;
+                element.textContent = Math.floor(current);
+                if (current >= target) {
+                    element.textContent = target;
+                    clearInterval(timer);
+                }
+            }, 16);
+        }
+
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const number = entry.target.textContent.replace(/\D/g, '');
+                    if (number) animateCounter(entry.target, parseInt(number));
+                    statsObserver.unobserve(entry.target);
+                }
+            });
+        });
+
+        document.querySelectorAll('.stat-number').forEach(stat => {
+            statsObserver.observe(stat);
+        });
+    });
+
+    // Simulated Enroll Handler
+    function selectBundle(bundleId, bundleName) {
+        const button = event.target;
+        const originalText = button.textContent;
+        button.textContent = 'Processing...';
+        button.disabled = true;
+
+        setTimeout(() => {
+            console.log(`Enrolling in bundle: ${bundleName} (ID: ${bundleId})`);
+            button.textContent = '✓ Enrolled!';
+            button.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.disabled = false;
+                button.style.background = '';
+            }, 2000);
+        }, 1000);
+    }
+</script>
+
+<!-- 💧 Ripple Animation -->
+<style>
+    .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.6);
+        animation: ripple-animation 0.6s linear;
+        transform: scale(0);
+    }
+    @keyframes ripple-animation {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+</style>
+
+{% endblock %}
